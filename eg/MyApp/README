@@ -1,0 +1,105 @@
+Tiny Catalyst program to play with...
+
+  Yxes::Catalyst::Authentication::Credential::Google
+
+Though it's inherently difficult to write decent test
+scripts for any Catalyst Authentication plugin, using
+oAuth2 with Google is nearly impossible without the
+ability to actually contact Google (and they have no
+way to do that as a test).  I've done the best I
+could with the test scripts on board (make test) but
+it's never exactly what you want, so this allows me
+to test the actual code against a 'real' server.
+
+If you'd like to 'try before you buy'...
+(where "buy" in this case means "install")
+
+PERL LIBRARIES
+
+I use three "non-standard" Catalyst libraries. They
+are:
+
+  * Catalyst::Plugin::Session::State::Cookie
+  * Catalyst::Plugin::Session::Store::FastMmap
+  * Catalyst::Plugin::Authentication
+
+You can ensure that everything is installed by issuing
+
+  * perl Makefile.PL
+  * make
+
+ [ I have no test scripts with this package so you 
+   don't bother running 'make test' ]
+
+GOOGLE CLIENT ID AND SECRET
+
+Make certain you have a Google 'Client ID' and 'Client
+secret' - as outlined in the README file that comes with
+
+Yxes::Catalyst::Authentication::Credential::Google
+
+[ be sure that your Client ID and secret have a
+  Redirect URI with http://localhost:3000/login ]
+
+Armed with your shiny new Client ID and Client secret
+edit the file:
+
+lib/MyApp.pm
+
+and change client_id and client_secret in that file to
+their respective values.  
+
+RUN THE SERVER
+
+This package looks for the above library relative to
+it's location so you'll want to run it from this 
+directory using...
+
+script/myapp_server.pl
+
+to test the application.
+
+Then hit the following URLs...
+
+* Be sure that the server is running
+  http://localhost:3000/
+
+* Attempt to bring up a page you don't have access to
+  http://localhost:3000/welcome
+  This should take you to Google for authentication
+
+* Finally observe that you ended up at
+  http://localhost:3000/login
+  and attempt to bring up the 'welcome' page again
+  http://localhost:3000/welcome
+
+* RESET EVERYTHING
+  - stop the server CTRL-C
+  - Remove your authentication link from Google at
+    https://accounts.google.com/b/0/IssuedAuthSubTokens?hl=en
+  - Remove the Session file
+    rm tmp/session
+  - Delete the cookie on your browser
+    [depends on which browser you're using]
+
+* See what happens if you tell Google that you won't allow
+  access to the application...
+  - start the server
+  - http://localhost:3000/welcome
+  - when you are redirected don't allow access
+  - the login page should give you an error
+
+REAL ERRORS???
+
+* If you get an error when you are redirected to Google...
+
+  [ review the ../../README file again for retrieving your 
+    Google values ]
+
+  - take a look at ./lib/MyApp.pm again and ensure you entered
+    the correct ID and secret key for your application
+
+  - Ensure that your Redirect URI is setup with Google
+    ie: http://localhost:3000/login
+
+				--- Good Luck :)

@@ -1,0 +1,331 @@
+Yxes-Catalyst-Authentication-Credential-Google
+==============================================
+VERSION: 0.01
+
+Provides OAuth2 authentication (via email address) to Catalyst from
+Google.
+
+[perldoc Yxes::Catalyst::Authentication::Credential::Google for details]
+
+INSTALLATION
+
+To install this module, run the following commands:
+
+	perl Makefile.PL
+	make
+	make test
+	make install
+
+GOOGLE API SETUP
+
+Start by registering your URL(s) with Google at
+
+https://code.google.com/apis/console/
+
+Select the "API Access" link on the left-hand side
+in order to generate your 'Client ID' and 'Client secret'
+keys.
+
+You'll need to fill these into your catalyst configuration
+file. (see docs)
+
+Keep in mind that Google requires that your redirect URIs be
+registered with them as well.  Google attempts to provide
+help at:
+
+https://developers.google.com/console/help/#UsingOAuth2
+
+ NOTES
+
+ *  If you're not sure which Application type - select Web 
+    Application when creating your Client ID - it's probably
+    what you want
+
+ *  By default Catalyst uses port 3000 to run it's test
+    server - when setting up your Redirect URIs with Google
+    it may be a good idea to add them at the same time by
+    selecting 'more options' and adding them.
+
+    ie: http://www.example.com:3000/login
+
+    [ you'll know it when you get there ]
+
+DOCUMENTATION
+-------------
+
+SYNOPSIS
+    In MyApp.pm
+
+        use Catalyst qw/
+            Authentication
+            Session
+            Session::Store::FastMmap
+            Session::State::Cookie
+        /;
+
+    In myapp.conf
+
+        <Plugin::Authentication>
+         default_realm oauth2
+          <realms>
+           <oauth2>
+            <credential>
+             class     +Yxes::Catalyst::Authentication::Credential::Google
+             <providers>
+              <google.com>
+               client_id              google_client_id
+               client_secret          google_client_secret
+              </google.com>
+             </providers>
+            </credential>
+           </oauth>
+          </realms>
+        </Plugin::Authentication>
+
+    In controller code,
+
+        sub oauth2 : Local {
+            my ($self, $c) = @_;
+
+            if( $c->authenticate( { provider => 'google.com' } ) ) {
+                #do something with $c->user
+            }
+        }
+
+DESCRIPTION
+    Allow Google authentication from your catalyst app.
+
+USER METHODS
+    The default scope returns both user.profile and user.email information
+    back to your application.
+
+    Here's a complete list of what's returned by default:
+
+    *   link
+
+        the Google+ link for this user
+
+    *   name
+
+        Full Name
+
+    *   locale
+
+        The default locale for this user. ie 'en' for English
+
+    *   family_name
+
+        the users 'last name'
+
+    *   given_name
+
+        the users 'first name'
+
+    *   id
+
+        Google assigns your user an id number
+
+    *   verified_email
+
+        a Boolean returning 1 (true) or 0 (false)
+
+    *   birthday
+
+        YYYY-MM-DD format
+
+    *   picture
+
+        a URL pointing to the users image (as set by Google)
+
+    *   gender
+
+        male or female (as far as I know)
+
+    *   token
+
+        a hash of the token information retrieved from Google
+
+        to use these call $c->user->{token}->{expires_in} for instance
+
+        *   expires_in
+
+            (in seconds) default is 3600
+
+        *   id_token
+
+            Google's ID Token string
+
+        *   access_token
+
+            Used as part of your Authentication call to access Google APIs
+
+        *   token_type
+
+            The authentication's username when calling an API. Default is
+            'Bearer'
+
+SUBROUTINES/METHODS
+    The first group of settings (if you want to use them) must be set in the
+    configuration file.
+
+    Here's a list of your configuration options:
+
+         <Plugin::Authentication>
+          ...
+          <google.com>
+            # mandatory
+            client_id   GOOGLE CLIENT ID
+            client_secre GOOGLE CLIENT SECRET
+  
+            # optional
+            verbose     1 | 0
+            scope       the goole scope URL(s)
+            auth_uri    [URI object] the URL for Google's auth2 location
+            token_uri   [URI object] the URL for Google's token location
+            api_uri     [URI object] the URL for Google's api location
+
+          </google.com>
+         </Plugin::Authentication>
+
+    to set URI objects in your configuration file use this format:
+
+        auth_uri URI->new('http://www.example.com/path/example');
+
+    The following is breakdown of each call
+
+  verbose
+    Can be set to 1 (true) to display debugging information
+
+    ie: verbose 1
+
+  providers
+    caches the list of the providers
+
+    ie: providers is mandatory for the Plugin::Authentication module, so
+    this is just a placeholder to cache that information.
+
+    [SEE SYNOPSIS]
+
+  scope
+    the google scope URLs
+
+    Join scopes together with a plus '+' symbol. Since they are never used
+    as urls in the program we don't require (or even allow) them to be URI
+    objects.
+
+    default: https://www.googleapis.com/auth/userinfo.profile +
+    https://www.googleapis.com/auth/userinfo.email
+
+    NOTE: this is NOT a URI object so just put your scope in your config
+    file as a string.
+
+    ie: scope https://www.googleapis.com/auth/tasks.readonly
+
+    You can find other scopes here:
+
+    [Google Developer Playground]
+    <https://developers.google.com/oauthplayground/>
+
+  auth_uri
+    the google authentication uri
+
+    default: URI->new('https://accounts.google.com/o/oauth2/auth')
+
+  token_uri
+    the google token uri
+
+    default: URI->new('https://accounts.google.com/o/oauth2/token')
+
+  api_uri
+    the google api uri
+
+    default: URI->new('https://www.googleapis.com/oauth2/v2/userinfo')
+
+  BUILDARGS
+    [INTERNAL METHOD]
+
+    Snatches up the configruation information and returns it to Moose in a
+    canonical way
+
+  authenticate
+     use Data::Dumper;
+
+     if ($c->authenticate({provider => 'google.com'})) {
+        $c->res->body('We are in! - '. Dumper($c->user));
+     }else{
+        $c->logout if ($c->user);
+        $c->res->body('No Juice');
+     }
+
+AUTHOR
+    Stephen D. Wells, "<yxes at cpan.org>"
+
+SUPPORT
+    The following (albetit very limited) support is available:
+
+  DOCUMENTATION
+    You can find documentation for this module with the perldoc command.
+
+        perldoc Yxes::Catalyst::Authentication::Credential::Google
+
+  GITHUB
+    This package is hosted on github.com
+
+    [Yxes::Catalyst::Authentication::Credential::Google]
+    <https://github.com/yxes/Yxes-Catalyst-Authentication-Credential-Google>
+
+  EXAMPLE APPLICATION
+    Bundled with this, is a Catalyst example that you are encouraged to play
+    with.
+
+    It can be found in the ./eg/MyApp directory. Read the README file in
+    there to review how to retrieve your 'Client ID' and 'Client secret'
+    values from Google, then add that to the configuration to test the
+    application before you install it.
+
+ACKNOWLEDGEMENTS
+    The majority of this code was lifted from the CPAN module:
+    Catalyst::Authentication::Credential::OAuth and those authors deserve
+    the credit for this module:
+
+    Cosmin Budrica <cosmin@sinapticode.com>
+
+    Bogdan Lucaciu <bogdan@sinapticode.com>
+
+    Pavel Bashinsky <pavel.bashinsky at gmail.com>
+
+    With contributions from:
+
+      Tomas Doran E<lt>bobtfish@bobtfish.netE</gt>
+
+    Further to this, Bashinsky needs to be credited with changes that
+    introduce code to enable the above module to use OAuth with Google.
+
+    [see post]
+    <http://grokbase.com/t/sc/catalyst-commits/1162ezwhnw/r14028-in-catalyst
+    -authentication-credential-oauth-trunk-lib-catalyst-authentication-crede
+    ntial>
+
+    His code was introduced as a patch but I was unable to get the patch to
+    work so I went line by line and made the appropriate changes in the code
+    - debugged it and viola - it seems to work.
+
+    ...and then...
+
+    The upgrade to OAuth2 was reformatted using Net::Google::Drive::Simple,
+    specficially Mike Schilli's <cpan@perlmeister.com</gt>
+    [google-drive-init]
+    <https://metacpan.org/source/MSCHILLI/Net-Google-Drive-Simple-0.05/eg/go
+    ogle-drive-init> script in the 'eg' directory. He has a very cool
+    technique for storing the keys to handle long transfers without being
+    logged out of Google - check it out!
+
+LICENSE AND COPYRIGHT
+    Copyright 2013 Stephen D. Wells.
+
+    This program is free software; you can redistribute it and/or modify it
+    under the terms of either: the GNU General Public License as published
+    by the Free Software Foundation; or the Artistic License.
+
+    See http://dev.perl.org/licenses/ for more information.
+
