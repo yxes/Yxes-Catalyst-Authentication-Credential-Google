@@ -1,4 +1,5 @@
 .gitignore
+MANIFEST.SKIP
 Changes
 eg/MyApp/Changes
 eg/MyApp/inc/File/Copy/Recursive.pm
