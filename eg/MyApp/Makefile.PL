@@ -22,6 +22,13 @@ requires 'Catalyst::Plugin::Session::State::Cookie';
 requires 'Catalyst::Plugin::Session::Store::FastMmap';
 requires 'Catalyst::Plugin::Authentication';
 
+requires 'Catalyst::Plugin::Authorization::Roles';
+
+# [optional]
+#  - if you wish to reload your database you might need:
+# requires 'Catalyst::Helper::Model::DBIC::Schema';
+# requires 'DBIx::Class::Schema::Loader';
+
 test_requires 'Test::More' => '0.88';
 catalyst;
 

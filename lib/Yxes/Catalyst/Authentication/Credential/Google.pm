@@ -278,7 +278,7 @@ sub BUILDARGS {
     $c->res->body('We are in! - '. Dumper($c->user));
  }else{
     $c->logout if ($c->user);
-    $c->res->body('No Juice');
+    $c->res->body('No Juice: ' . $c->stash->{auth_error});
  }
 
 =cut
@@ -295,7 +295,7 @@ sub authenticate {
     # look for an error from google
     if ($c->req->param('error')) {
        $c->log->debug('authenticate() Google Error Message: ' . $c->req->param('error'));
-       $c->stash->{login_error} = 'Google Responded with: '. $c->req->param('error');
+       $c->stash->{auth_error} = 'Google Responded with: '. $c->req->param('error');
        $c->logout;
        return;
     }
@@ -383,6 +383,28 @@ sub _build_req {
 
 return $req; # you have to handle errors on your own
 }
+
+=head1 SAMPLE CONFIGURATION FILE
+
+ <Plugin::Authentication>
+  default_realm 	oauth2
+  <realms>
+    <oauth2>
+      <store>
+	class			Catalyst::Authentication::Store::Null
+      </store>
+      <credential>
+        class			+Yxes::Catalyst::Authentication::Credential::Google
+	<providers>
+	  <google.com>
+	    client_id		43522351S345.apps.googleusercontent.com
+	    client_secret	qKK85h4H_3mJXQP9n5qzO
+	  </google.com>
+        </providers>
+      </credential>
+    </oauth2>
+   </realms>
+ </Plugin::Authentication>
 
 =head1 AUTHOR
 

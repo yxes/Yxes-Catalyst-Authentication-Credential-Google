@@ -7,28 +7,16 @@ use namespace::autoclean;
 
 use Catalyst::Runtime 5.80;
 
-# Set flags and add plugins for the application.
-#
-# Note that ORDERING IS IMPORTANT here as plugins are initialized in order,
-# therefore you almost certainly want to keep ConfigLoader at the head of the
-# list if you're using it.
-#
-#         -Debug: activates the debug mode for very useful log messages
-#   ConfigLoader: will load the configuration from a Config::General file in the
-#                 application's home directory
-# Static::Simple: will serve static files from the application's root
-#                 directory
-
 use Catalyst qw/
+    ConfigLoader
+
     Authentication
     Session
     Session::Store::FastMmap
     Session::State::Cookie
+
+    Authorization::Roles
 /;
-
-#extends 'Catalyst';
-
-#our $VERSION = '0.01';
 
 # Configure the application.
 #
@@ -41,41 +29,18 @@ use Catalyst qw/
 
 __PACKAGE__->config(
     name => 'MyApp',
+
     # Disable deprecated behavior needed by old applications
     disable_component_resolution_regex_fallback => 1,
     enable_catalyst_header => 1, # Send X-Catalyst header
-
-    "Plugin::Session" => {
-	storage => './tmp/session'
-    },
-
-    "Plugin::Authentication" => {
-        default_realm => "oauth",
-        realms => {
-            oauth => {
-                store => { class => '+Catalyst::Authentication::Store::Null' },
-                credential => {
-                   class => '+Yxes::Catalyst::Authentication::Credential::Google',
-                   providers => {
-                     'google.com' =>  {
-                        client_id     => '',
-                        client_secret => '',
-                     }
-                   }
-                }
-            }
-       }
-    },
-
 );
 
 # Start the application
 __PACKAGE__->setup();
 
-
 =head1 NAME
 
-MyApp - Catalyst based application
+MyApp - Catalyst based application for testing
 
 =head1 SYNOPSIS
 
@@ -83,7 +48,18 @@ MyApp - Catalyst based application
 
 =head1 DESCRIPTION
 
-[enter your description here]
+Simple Catalyst application to test 
+
+=over 4
+
+=item * Yxes::Catalyst::Authentication::Credential::Google
+
+=item * [optional] Yxes::Catalyst::Authentication::Credential::Google::Roles
+
+=back
+
+To run this just type 'script/myapp_server.pl' and point your browser
+to 'http://localhost:3000/'
 
 =head1 SEE ALSO
 
@@ -91,7 +67,7 @@ L<MyApp::Controller::Root>, L<Catalyst>
 
 =head1 AUTHOR
 
-Catalyst developer
+Stephen D. Wells, C<< <yxes at cpan.org> >>
 
 =head1 LICENSE
 

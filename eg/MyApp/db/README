@@ -1,0 +1,12 @@
+This is your test database.
+
+I recommend editing the myapp.sql file and changing one 
+of the email addresses to your google address so you can 
+login.
+
+After you've changed the entry turn it into an SQLite 
+database using the command:
+
+sqlite3 myapp.db < myapp.sql
+
+and re-run script/myapp_server.pl

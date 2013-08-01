@@ -1,11 +1,44 @@
 use strict;
 use warnings;
 
-use lib 't/lib';
+use FindBin;
+use lib "$FindBin::Bin/lib";
 
-use Cwd 'abs_path';
+#use Cwd 'abs_path';
 use Catalyst::Test 'TestApp';
 use Test::More tests => 3;
+
+BEGIN {
+  use TestApp;
+  TestApp->config(
+     "Plugin::Session" => {
+         storage => './t/tmp/session'
+     },
+     "Plugin::Authentication" => {
+         default_realm => "oauth",
+         realms => {
+            oauth => {
+                store => { class => '+Catalyst::Authentication::Store::Null' },
+                credential => {
+                   class => '+Yxes::Catalyst::Authentication::Credential::Google',
+                   auth_uri => URI->new('http://localhost/googleauth/auth'),
+                   token_uri => URI::file->new_abs('./t/dat/token.json'),
+                   api_uri => URI::file->new_abs('./t/dat/user.json'),
+                   providers => {
+                     'google.com' =>  {  # these are NOT real (of course)
+                        client_id     => '835952862943.apps.googleusercontent.com',
+                        client_secret => 'pP0DwxRjdTDHQ7wTsQ-ls_5k',
+                     }
+                   }
+                }
+            }
+         }
+     },
+  );
+
+  TestApp->setup(qw/Authentication Session Session::Store::FastMmap Session::State::Cookie/);
+  TestApp->log->levels(qw/info warn error fatal/) unless TestApp->debug;
+}
 
 my ($res, $c) = ctx_request('/index');
 
@@ -21,4 +54,4 @@ is($c->user->name, 'Test User', '[ignore the man behind the curtain] user popula
 
    ($res) = request('/home');
 
-# at this point we need to perform some error checking and $c->stash->{login_error} should be populated
+# at this point we need to perform some error checking and $c->stash->{auth_error} should be populated

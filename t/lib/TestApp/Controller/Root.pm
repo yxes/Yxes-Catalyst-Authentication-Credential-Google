@@ -8,17 +8,20 @@ use parent 'Catalyst::Controller';
 sub auto : Private {
     my ($self, $c) = @_;
 
-    return 1 if ($c->req->path =~ /login_error/ ||
-		 $c->req->path =~ /logout/	||
+    return 1 if ($c->req->path =~ /logout/	||
 		 $c->req->path =~ /googleauth/);
 
     if (!$c->user_exists) {
        $c->log->debug('***Root:auto User not found - authenticating');
        if ($c->authenticate({provider => 'google.com'})) {
-          return $c->res->redirect($c->uri_for('/index'));
+           $c->res->redirect($c->uri_for('/index'));
+           $c->detach();
        }else{
+          # this doesn't work. I just get a 500 error - I don't bother
+	  #   testing for it... instead just seeing if we got the
+	  #   server error
 	  $c->log->debug('***Root:auto User not Authenticated');
-          return $c->res->redirect($c->uri_for('/login_error'));
+          $c->detach('login_error');
        }
     }
 
@@ -43,10 +46,10 @@ sub home: Path('/home') {
     $c->res->body('welcome home');
 }
 
-sub login_error : Path('/login_error') {
+sub login_error : Private {
     my ($self, $c) = @_;
 
-    $c->response->body('the following error occured: '. $c->stash->{login_error} );
+    $c->response->body('the following error occured: ', $c->stash->{auth_error});
 }
 
 sub logout : Path('/logout') {

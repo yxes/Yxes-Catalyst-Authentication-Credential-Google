@@ -16,12 +16,22 @@ BEGIN {
          default_realm => "oauth",
          realms => {
             oauth => {
-                store => { class => '+Catalyst::Authentication::Store::Null' },
+                store => {
+		   class => 'DBIx::Class',
+		   store_user_class => 'Yxes::Catalyst::Authentication::Store::Roles',
+		   user_model => 'TestAppDB::User',
+		   use_userdata_from_session => 1,
+		   role_relation => 'roles',
+		   role_field => 'role',
+		   ignore_fields_in_find => [qw/google_id link name locale family_name given_name
+						verified_email birthday picture gender/],
+		   
+		},
                 credential => {
                    class => '+Yxes::Catalyst::Authentication::Credential::Google',
                    auth_uri => URI->new('http://localhost/googleauth/auth'),
                    token_uri => URI::file->new_abs('./t/dat/token.json'),
-                   api_uri => URI::file->new_abs('./t/dat/user.json'),
+                   api_uri => URI::file->new_abs('./t/dat/auto_user.json'),
                    providers => {
                      'google.com' =>  {  # these are NOT real (of course)
                         client_id     => '835952862943.apps.googleusercontent.com',
@@ -47,12 +57,20 @@ eval " use Catalyst::Plugin::Session::Store::FastMmap; 1 "
 eval " use Test::MockObject; 1 "
     or plan skip_all => 'test requires Test::MockObject';
 
+# reset the database
+my $reset_database = sub {
+  unlink 't/db/testapp.db';
+  system('sqlite3 t/db/testapp.db < t/db/testapp.sql');
+};
+
+$reset_database->();
+
 my $mech = Test::WWW::Mechanize::Catalyst->new(catalyst_app => 'TestApp');
 $mech->{catalyst_debug} = 0;
 
 # load a page
 $mech->get_ok('/index', 'full authentication');
-$mech->content_like(qr/Test User/, 'user info imbedded in page');
+$mech->content_like(qr/Auto User/, 'user info imbedded in page');
 
 # load another page
 $mech->get_ok('/home', 'reusing the user info for the next page');
@@ -62,5 +80,7 @@ $mech->get_ok('/logout', 'log out');
 
 # load home again
 $mech->get_ok('/home', 'logging in again');
+
+$reset_database->();
 
 done_testing();

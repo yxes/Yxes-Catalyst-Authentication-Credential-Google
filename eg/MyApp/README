@@ -16,12 +16,13 @@ If you'd like to 'try before you buy'...
 
 PERL LIBRARIES
 
-I use three "non-standard" Catalyst libraries. They
+I use four "non-standard" Catalyst libraries. They
 are:
 
   * Catalyst::Plugin::Session::State::Cookie
   * Catalyst::Plugin::Session::Store::FastMmap
   * Catalyst::Plugin::Authentication
+  * Catalyst::Plugin::Authorization::Roles
 
 You can ensure that everything is installed by issuing
 
@@ -103,3 +104,40 @@ REAL ERRORS???
     ie: http://localhost:3000/login
 
 				--- Good Luck :)
+
+------------------------------------------------------------
+[optional]
+Yxes::Catalyst::Authentication::Store::Roles
+
+Add your gmail address to the local database by editing the
+file:
+
+ db/myapp.sql
+
+replace 'nobody@gmail.comma' with your gmail address
+and then run:
+
+ sqlite3 db/myapp.db < db/myapp.sql
+
+Next, you'll need to edit the configuration file to 
+get setup to use the Roles method.  Take a look at
+
+ myapp.conf
+
+for details on editing that file.
+
+When you're done, start the server as noted above and
+try running the tests above.  After you've logged in
+you should be able to check the sqlite database and
+see that your Google information is now stored there.
+
+ sqlite3 db/myapp.db
+ sqlite> select * from users;
+
+[technical - you probably won't need this...]
+
+If you make changes to the database structure as 
+opposed to just updates to the data, you may need
+to reload the database for DBIx using the command:
+
+perl script/myapp_create.pl model MyAppDB DBIC::Schema MyApp::Schema::MyAppDB create=static dbi:SQLite:dbname=./db/myapp.db
