@@ -24,6 +24,7 @@ WriteMakefile(
         # TEST LIBRARIES - TEST_REQUIRES failed for me :(
         'Test::More'	        	 => '0.98',
 	'Test::WWW::Mechanize::Catalyst' => '0.54',
+	'MooseX::MarkAsMethods'		 => '0.15' 
     },
     dist                => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
     clean               => { FILES => 'Yxes-Catalyst-Authentication-Credential-Google-*' },
