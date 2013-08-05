@@ -8,6 +8,11 @@
 
 PRAGMA foreign_keys = ON;
 
+--
+-- NOTE: 'hd' stands for Hosted Domain and is only set when the
+--       user is using a Google Apps Domain otherwise it's NULL
+--
+
 CREATE TABLE users (
   id		 INTEGER PRIMARY KEY,
   email		 VARCHAR(255) NOT NULL,
@@ -21,6 +26,7 @@ CREATE TABLE users (
   birthday	 DATE,
   picture	 VARCHAR(255),
   gender	 VARCHAR(30),
+  hd		 VARCHAR(250),
   active	 TINYINT NOT NULL DEFAULT '1'
 );
 

@@ -19,6 +19,7 @@ CREATE TABLE users (
   google_id	 VARCHAR(50),
   verified_email TINYINT,
   birthday	 DATE,
+--  hd		 VARCHAR(255),
   picture	 VARCHAR(255),
   gender	 VARCHAR(30),
   active	 TINYINT NOT NULL DEFAULT '1'

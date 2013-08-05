@@ -1,6 +1,6 @@
 Yxes-Catalyst-Authentication-Credential-Google
 ==============================================
-VERSION: 0.01
+VERSION: 0.03
 
 Provides OAuth2 authentication (via email address) to Catalyst from
 Google.
@@ -52,6 +52,12 @@ https://developers.google.com/console/help/#UsingOAuth2
 
 DOCUMENTATION
 -------------
+NAME
+    Yxes::Catalyst::Authentication::Credential::Google - OAuth2 credential
+    for Catalyst::Plugin::Authentication
+
+VERSION
+    Version 0.03
 
 SYNOPSIS
     In MyApp.pm
@@ -141,6 +147,13 @@ USER METHODS
 
         male or female (as far as I know)
 
+    *   hd
+
+        is used if the domain is hosted by google as part of it's Google
+        Apps software. Otherwise, it's blank.
+
+        ie: mydomain.com
+
     *   token
 
         a hash of the token information retrieved from Google
@@ -154,6 +167,11 @@ USER METHODS
         *   id_token
 
             Google's ID Token string
+
+        *   refresh_token
+
+            as the name strongly implies, allows you to refresh the token
+            before it expires
 
         *   access_token
 
@@ -254,8 +272,29 @@ SUBROUTINES/METHODS
         $c->res->body('We are in! - '. Dumper($c->user));
      }else{
         $c->logout if ($c->user);
-        $c->res->body('No Juice');
+        $c->res->body('No Juice: ' . $c->stash->{auth_error});
      }
+
+SAMPLE CONFIGURATION FILE
+     <Plugin::Authentication>
+      default_realm         oauth2
+      <realms>
+        <oauth2>
+          <store>
+            class                   Catalyst::Authentication::Store::Null
+          </store>
+          <credential>
+            class                   +Yxes::Catalyst::Authentication::Credential::Google
+            <providers>
+              <google.com>
+                client_id           43522351S345.apps.googleusercontent.com
+                client_secret       qKK85h4H_3mJXQP9n5qzO
+              </google.com>
+            </providers>
+          </credential>
+        </oauth2>
+       </realms>
+     </Plugin::Authentication>
 
 AUTHOR
     Stephen D. Wells, "<yxes at cpan.org>"
@@ -321,7 +360,7 @@ ACKNOWLEDGEMENTS
     logged out of Google - check it out!
 
 LICENSE AND COPYRIGHT
-    Copyright 2013 Stephen D. Wells.
+    Copyright 2013 Stephen D. Wells. All Rights Reserved.
 
     This program is free software; you can redistribute it and/or modify it
     under the terms of either: the GNU General Public License as published

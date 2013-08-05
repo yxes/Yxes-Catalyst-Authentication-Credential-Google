@@ -18,11 +18,11 @@ Yxes::Catalyst::Authentication::Credential::Google - OAuth2 credential for Catal
 
 =head1 VERSION
 
-Version 0.02
+Version 0.03
 
 =cut
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 =head1 SYNOPSIS
 
@@ -116,6 +116,13 @@ a URL pointing to the users image (as set by Google)
 
 male or female (as far as I know)
 
+=item * hd
+
+is used if the domain is hosted by google as part of it's
+Google Apps software.  Otherwise, it's blank.
+
+ie: mydomain.com
+
 =item * token
 
 a hash of the token information retrieved from Google
@@ -131,6 +138,11 @@ to use these call $c->user->{token}->{expires_in} for instance
 =item * id_token
 
 Google's ID Token string
+
+=item * refresh_token
+
+as the name strongly implies, allows you to refresh 
+the token before it expires
 
 =item * access_token
 
@@ -470,7 +482,7 @@ transfers without being logged out of Google - check it out!
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright 2013 Stephen D. Wells.
+Copyright 2013 Stephen D. Wells.  All Rights Reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of either: the GNU General Public License as published

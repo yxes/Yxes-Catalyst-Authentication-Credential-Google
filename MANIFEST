@@ -42,7 +42,6 @@ t/00-load.t
 t/basic_googleauth.t
 t/basic_pages.t
 t/basic_roles.t
-t/basic_roles.t.new
 t/basic_roles_autoadd.t
 t/basic_roles_denied.t
 t/boilerplate.t

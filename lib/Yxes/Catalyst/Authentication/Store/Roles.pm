@@ -30,7 +30,7 @@ override 'load' => sub {
 
        if ($ref) {
 	  for my $key (keys %$authinfo) {
-	      next if ($key eq 'email');
+	      next if ($key eq 'email' || ! $ref->has_column($key)); # is there a column for this key?
 
 	      if ($key eq 'verified_email') { # VERIFY EMAIL is returning BOOLEAN
 		 $ref->$key($authinfo->{$key} eq 'true' ? 1 : 0); # we convert it to 1 or 0
@@ -46,15 +46,14 @@ override 'load' => sub {
 
 	  }
 	  $ref->update();
-	  $authinfo->{result}     = $ref;
-	  $authinfo->{dbix_class} = $authinfo;
+	  $authinfo->{dbix_class} = { email => $authinfo->{email}, result => $ref };
        }else{
+	  $authinfo->{dbix_class} = {email => $authinfo->{email}};
 	  $c->stash('auth_error' => $authinfo->{email} . ' is not registered with us');
 	  $c->log->debug('NO REF FOUND!');
        }
     }
 
-#super($authinfo, $c) # allow Catalyst::Authentication::Store::DBIx::Class::User to do it's sweet thang!
 super() # allow Catalyst::Authentication::Store::DBIx::Class::User to do it's sweet thang!
 };
 
@@ -67,10 +66,6 @@ __END__
 
 Yxes::Catalyst::Authentication::Store::Roles - establish roles for
 Yxes::Catalyst::Authentication::Credential::Google
-
-=head1 VERSION
-
-This documentation refers to version 0.1
 
 =head1 SYNOPSIS
 
@@ -178,19 +173,10 @@ their Google account if they are your employee anyway]
 	class			DBIx::Class
 	store_user_class	Yxes::Catalyst::Authentication::Store::Roles
         user_model		MyAppDB::User
-        use_userdata_from_session true
+
+	# optional
 	role_relation   	roles
         role_field      	role
-	ignore_fields_in_find   google_id
-	ignore_fields_in_find   link
-	ignore_fields_in_find   name
-	ignore_fields_in_find   locale
-	ignore_fields_in_find   family_name
-	ignore_fields_in_find   given_name
-	ignore_fields_in_find   verified_email
-	ignore_fields_in_find   birthday
-	ignore_fields_in_find   picture
-	ignore_fields_in_find   gender
       </store>
       <credential>
         class		+Yxes::Catalyst::Authentication::Credential::Google
@@ -224,6 +210,7 @@ The program expects the following tables
   google_id	 VARCHAR(50),
   verified_email TINYINT,
   birthday	 DATE,
+  hd		 VARCHAR(250),
   picture	 VARCHAR(255),
   gender	 VARCHAR(30),
   active	 TINYINT NOT NULL DEFAULT '1'
@@ -267,16 +254,20 @@ Stephen D. Wells <yxes at cpan.org>
 
 =head1 THANKS
 
-the great and powerful
+the prodigious...
 
 Tomas Doran (tOm) <bobtfish@bobtfish.net>
 
-...for pointing me in the right direction....
+...for leaving an indelible mark on my understanding....
+
+=for comment
+he stamped on my foot
 
 =head1 LICENSE
 
-Copyright (c) 2013 Stephen D. Wells. All rights
-reserved. This program is free software; you can redistribute
-it and/or modify it under the same terms as Perl itself.
+Copyright (c) 2013 Stephen D. Wells. All Rights Reserved.
+
+This program is free software; you can redistribute it
+and/or modify it under the same terms as Perl itself.
 
 =cut

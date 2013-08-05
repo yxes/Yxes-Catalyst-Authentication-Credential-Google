@@ -1,5 +1,11 @@
 Revision history for Yxes-Catalyst-Authentication-Credential-Google
 
+0.03    2013-08-05 15:46:27 PST
+	Yxes::Catalyst::Authentication::Store::Roles
+	- changes on Google's side won't crash the system - we
+	  match the column names before trying to add new data
+	- configuration is MUCH simpler now [see docs]
+
 0.02    2013-08-01 16:07:36 PST
 	Added Yxes-Catalyst-Authentication-Store-Roles to the mix
 

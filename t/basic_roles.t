@@ -20,12 +20,6 @@ BEGIN {
 		   class => 'DBIx::Class',
 		   store_user_class => 'Yxes::Catalyst::Authentication::Store::Roles',
 		   user_model => 'TestAppDB::User',
-		   use_userdata_from_session => 1,
-		   role_relation => 'roles',
-		   role_field => 'role',
-		   ignore_fields_in_find => [qw/google_id link name locale family_name given_name
-						verified_email birthday picture gender/],
-		   
 		},
                 credential => {
                    class => '+Yxes::Catalyst::Authentication::Credential::Google',
