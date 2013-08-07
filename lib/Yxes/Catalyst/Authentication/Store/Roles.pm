@@ -30,21 +30,26 @@ override 'load' => sub {
 
        if ($ref) {
 	  for my $key (keys %$authinfo) {
-	      next if ($key eq 'email' || ! $ref->has_column($key)); # is there a column for this key?
+	      next if ($key eq 'email');
+	      if ($key eq 'token') { # add in our tokens
+		 my $tokeobj = $ref->token || $ref->create_related('token', { id => $ref->id });
+		 for (keys %{$authinfo->{$key}}) {
+		     next unless $tokeobj->has_column($_);
+		     $tokeobj->$_($authinfo->{$key}->{$_});
+		 }
+	         $tokeobj->update();
+	       next;
+	      }
+
+	      next unless $ref->has_column($key);
 
 	      if ($key eq 'verified_email') { # VERIFY EMAIL is returning BOOLEAN
 		 $ref->$key($authinfo->{$key} eq 'true' ? 1 : 0); # we convert it to 1 or 0
-
-	      }elsif ($key eq 'token') { # add in our tokens
-		 my $tokeobj = $ref->token || $ref->create_related('token', { id => $ref->id });
-		    $tokeobj->$_($authinfo->{$key}->{$_}) for (keys %{$authinfo->{$key}});
-		    $tokeobj->update();
-
 	      }else{
 	         $ref->$key($authinfo->{$key});
 	      }
-
 	  }
+
 	  $ref->update();
 	  $authinfo->{dbix_class} = { email => $authinfo->{email}, result => $ref };
        }else{

@@ -4,6 +4,8 @@ use warnings;
 use FindBin;
 use lib "$FindBin::Bin/lib";
 
+use TestApp::Schema::TestAppDB;
+
 use Test::More;
 
 BEGIN {
@@ -74,6 +76,13 @@ $mech->get_ok('/logout', 'log out');
 
 # load home again
 $mech->get_ok('/home', 'logging in again');
+
+# test the database for token information being passed
+{
+  my $schema = TestApp::Schema::TestAppDB->connect('dbi:SQLite:t/db/testapp.db');
+  my $userobj = $schema->resultset('User')->find(2);
+  is($userobj->token->expires_in, 3600, 'token keys are stored');
+}
 
 $reset_database->();
 
